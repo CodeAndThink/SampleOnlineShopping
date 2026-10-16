@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: catalog-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/catalog_db
+    username: catalog_user
+    password: catalog_local_password
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
