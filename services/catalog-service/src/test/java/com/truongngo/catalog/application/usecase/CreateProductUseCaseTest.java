@@ -30,14 +30,17 @@ class CreateProductUseCaseTest {
 
     @Test
     void createsProductAndReturnsRepositoryResult() {
-        CreateProductCommand command = new CreateProductCommand(
-                "  Keyboard  ", "Wireless keyboard", new BigDecimal("450000")
-        );
+        CreateProductCommand command =
+                new CreateProductCommand(
+                        "  Keyboard  ", "Wireless keyboard", new BigDecimal("450000"));
         // Return a distinct value to check that the use case uses the repository result.
-        Product savedProduct = new Product(
-                UUID.randomUUID(), "Keyboard", "Wireless keyboard",
-                new BigDecimal("450000.00"), Instant.parse("2026-01-01T00:00:00Z")
-        );
+        Product savedProduct =
+                new Product(
+                        UUID.randomUUID(),
+                        "Keyboard",
+                        "Wireless keyboard",
+                        new BigDecimal("450000.00"),
+                        Instant.parse("2026-01-01T00:00:00Z"));
         when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
         Instant before = Instant.now();
 
@@ -55,8 +58,7 @@ class CreateProductUseCaseTest {
                 () -> assertEquals(new BigDecimal("450000.00"), submitted.price()),
                 () -> assertNotNull(submitted.createdAt()),
                 () -> assertFalse(submitted.createdAt().isBefore(before)),
-                () -> assertFalse(submitted.createdAt().isAfter(after))
-        );
+                () -> assertFalse(submitted.createdAt().isAfter(after)));
         verifyNoMoreInteractions(productRepository);
     }
 
@@ -67,9 +69,9 @@ class CreateProductUseCaseTest {
         when(productRepository.save(any(Product.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Product result = createProductUseCase.save(
-                new CreateProductCommand(name, null, new BigDecimal(price))
-        );
+        Product result =
+                createProductUseCase.save(
+                        new CreateProductCommand(name, null, new BigDecimal(price)));
 
         assertEquals(name, result.name());
         assertNull(result.description());

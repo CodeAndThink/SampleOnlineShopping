@@ -30,16 +30,15 @@ class DeleteProductUseCaseTest {
     void deletesExistingProduct() {
         UUID id = UUID.randomUUID();
 
-        Product product = new Product(
-                id,
-                "Microphone",
-                "This is test description",
-                new BigDecimal(50000),
-                Instant.now()
-        );
+        Product product =
+                new Product(
+                        id,
+                        "Microphone",
+                        "This is test description",
+                        new BigDecimal(50000),
+                        Instant.now());
 
-        when(productRepository.findById(id))
-                .thenReturn(Optional.of(product));
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
 
         deleteProductUseCase.execute(id);
 
@@ -50,23 +49,16 @@ class DeleteProductUseCaseTest {
     void doesNotDeleteWhenProductDoesNotExist() {
         UUID id = UUID.randomUUID();
 
-        when(productRepository.findById(id))
-                .thenReturn(Optional.empty());
+        when(productRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(
-                ProductNotFoundException.class,
-                () -> deleteProductUseCase.execute(id)
-        );
+        assertThrows(ProductNotFoundException.class, () -> deleteProductUseCase.execute(id));
 
         verify(productRepository, never()).deleteById(any(UUID.class));
     }
 
     @Test
     void rejectsNullIdWithoutCallingRepository() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> deleteProductUseCase.execute(null)
-        );
+        assertThrows(IllegalArgumentException.class, () -> deleteProductUseCase.execute(null));
 
         verifyNoInteractions(productRepository);
     }

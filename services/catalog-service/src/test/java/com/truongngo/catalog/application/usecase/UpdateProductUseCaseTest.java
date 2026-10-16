@@ -27,41 +27,35 @@ class UpdateProductUseCaseTest {
         productRepository = mock(ProductRepository.class);
         useCase = new UpdateProductUseCase(productRepository);
 
-        existing = new Product(
-                UUID.randomUUID(),
-                "Old name",
-                "Old description",
-                new BigDecimal("100.00"),
-                Instant.parse("2026-01-01T00:00:00Z")
-        );
+        existing =
+                new Product(
+                        UUID.randomUUID(),
+                        "Old name",
+                        "Old description",
+                        new BigDecimal("100.00"),
+                        Instant.parse("2026-01-01T00:00:00Z"));
     }
 
     @Test
     void updatesProductWhilePreservingIdAndCreatedAt() {
-        when(productRepository.findById(existing.id()))
-                .thenReturn(Optional.of(existing));
+        when(productRepository.findById(existing.id())).thenReturn(Optional.of(existing));
 
-        Product savedProduct = new Product(
-                existing.id(),
-                "New name",
-                null,
-                new BigDecimal("250.00"),
-                existing.createdAt()
-        );
+        Product savedProduct =
+                new Product(
+                        existing.id(),
+                        "New name",
+                        null,
+                        new BigDecimal("250.00"),
+                        existing.createdAt());
 
-        when(productRepository.save(any(Product.class)))
-                .thenReturn(savedProduct);
+        when(productRepository.save(any(Product.class))).thenReturn(savedProduct);
 
-        UpdateProductCommand command = new UpdateProductCommand(
-                "  New name  ",
-                null,
-                new BigDecimal("250")
-        );
+        UpdateProductCommand command =
+                new UpdateProductCommand("  New name  ", null, new BigDecimal("250"));
 
         Product result = useCase.execute(existing.id(), command);
 
-        ArgumentCaptor<Product> captor =
-                ArgumentCaptor.forClass(Product.class);
+        ArgumentCaptor<Product> captor = ArgumentCaptor.forClass(Product.class);
 
         verify(productRepository).save(captor.capture());
         Product submitted = captor.getValue();
@@ -72,46 +66,31 @@ class UpdateProductUseCaseTest {
                 () -> assertEquals("New name", submitted.name()),
                 () -> assertNull(submitted.description()),
                 () -> assertEquals(new BigDecimal("250.00"), submitted.price()),
-                () -> assertSame(savedProduct, result)
-        );
+                () -> assertSame(savedProduct, result));
     }
 
     @Test
     void doesNotSaveWhenProductDoesNotExist() {
         UUID missingId = UUID.randomUUID();
 
-        when(productRepository.findById(missingId))
-                .thenReturn(Optional.empty());
+        when(productRepository.findById(missingId)).thenReturn(Optional.empty());
 
-        UpdateProductCommand command = new UpdateProductCommand(
-                "New name",
-                null,
-                new BigDecimal("250")
-        );
+        UpdateProductCommand command =
+                new UpdateProductCommand("New name", null, new BigDecimal("250"));
 
-        assertThrows(
-                ProductNotFoundException.class,
-                () -> useCase.execute(missingId, command)
-        );
+        assertThrows(ProductNotFoundException.class, () -> useCase.execute(missingId, command));
 
         verify(productRepository, never()).save(any(Product.class));
     }
 
     @Test
     void doesNotSaveWhenPriceIsNegative() {
-        when(productRepository.findById(existing.id()))
-                .thenReturn(Optional.of(existing));
+        when(productRepository.findById(existing.id())).thenReturn(Optional.of(existing));
 
-        UpdateProductCommand command = new UpdateProductCommand(
-                "New name",
-                "New description",
-                new BigDecimal("-1")
-        );
+        UpdateProductCommand command =
+                new UpdateProductCommand("New name", "New description", new BigDecimal("-1"));
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> useCase.execute(existing.id(), command)
-        );
+        assertThrows(IllegalArgumentException.class, () -> useCase.execute(existing.id(), command));
 
         verify(productRepository, never()).save(any(Product.class));
     }

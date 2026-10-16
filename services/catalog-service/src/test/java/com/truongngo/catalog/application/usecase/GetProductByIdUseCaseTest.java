@@ -30,13 +30,13 @@ class GetProductByIdUseCaseTest {
     void returnsProductWhenFound() {
         UUID id = UUID.randomUUID();
 
-        Product product = new Product(
-                id,
-                "Bàn phím",
-                "Bàn phím cơ",
-                new BigDecimal("450000.00"),
-                Instant.parse("2026-01-01T00:00:00Z")
-        );
+        Product product =
+                new Product(
+                        id,
+                        "Bàn phím",
+                        "Bàn phím cơ",
+                        new BigDecimal("450000.00"),
+                        Instant.parse("2026-01-01T00:00:00Z"));
 
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
 

@@ -6,15 +6,14 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
-public record ProductResponse(UUID id, String name, String description, BigDecimal price, Instant createdAt) {
+public record ProductResponse(
+        UUID id, String name, String description, BigDecimal price, Instant createdAt) {
     public static ProductResponse from(Product product) {
         return new ProductResponse(
                 product.id(),
                 product.name(),
                 product.description(),
                 product.price(),
-                product.createdAt()
-        );
+                product.createdAt());
     }
-
 }

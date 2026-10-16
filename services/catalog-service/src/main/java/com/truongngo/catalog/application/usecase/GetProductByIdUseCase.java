@@ -14,6 +14,6 @@ public class GetProductByIdUseCase {
     }
 
     public Product execute(UUID id) {
-        return productRepository.findById(id).orElseThrow(()-> new ProductNotFoundException(id));
+        return productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
     }
 }

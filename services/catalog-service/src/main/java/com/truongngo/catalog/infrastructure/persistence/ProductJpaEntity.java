@@ -1,6 +1,5 @@
 package com.truongngo.catalog.infrastructure.persistence;
 
-import com.truongngo.catalog.domain.model.Product;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -12,7 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "products")
-public class ProductJpaEntity  {
+public class ProductJpaEntity {
     @Id
     private UUID id;
 
@@ -25,16 +24,14 @@ public class ProductJpaEntity  {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "created_at",  nullable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    protected ProductJpaEntity() {}
+    protected ProductJpaEntity() {
+    }
 
-    public ProductJpaEntity(UUID id,
-                            String name,
-                            String description,
-                            BigDecimal price,
-                            Instant createdAt) {
+    public ProductJpaEntity(
+            UUID id, String name, String description, BigDecimal price, Instant createdAt) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -53,6 +50,7 @@ public class ProductJpaEntity  {
     public String getDescription() {
         return description;
     }
+
     public BigDecimal getPrice() {
         return price;
     }

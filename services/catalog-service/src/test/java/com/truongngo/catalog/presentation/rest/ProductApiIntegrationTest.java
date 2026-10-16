@@ -24,18 +24,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @AutoConfigureMockMvc
 @Import(TestDatabaseConfig.class)
 class ProductApiIntegrationTest {
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Autowired private ObjectMapper objectMapper;
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    @Autowired private JdbcTemplate jdbcTemplate;
 
     @Test
     void createsProductAndReadsItById() throws Exception {
-        String requestBody = """
+        String requestBody =
+                """
                 {
                     "name": "Wireless mouse",
                     "description": "Bluetooth connection",
@@ -44,18 +42,19 @@ class ProductApiIntegrationTest {
                 """;
 
         // Gửi POST qua controller thật và lưu vào PostgreSQL.
-        String responseBody = mockMvc.perform(post("/api/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.createdAt").isNotEmpty())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String responseBody =
+                mockMvc.perform(
+                                post("/api/products")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(requestBody))
+                        .andExpect(status().isCreated())
+                        .andExpect(jsonPath("$.id").isNotEmpty())
+                        .andExpect(jsonPath("$.createdAt").isNotEmpty())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
-        String id = objectMapper.readTree(responseBody)
-                .get("id").asString();
+        String id = objectMapper.readTree(responseBody).get("id").asString();
 
         assertDoesNotThrow(() -> UUID.fromString(id));
 
@@ -64,22 +63,20 @@ class ProductApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.name").value("Wireless mouse"))
-                .andExpect(jsonPath("$.description")
-                        .value("Bluetooth connection"))
+                .andExpect(jsonPath("$.description").value("Bluetooth connection"))
                 .andExpect(jsonPath("$.price").value(250000.0))
                 .andExpect(jsonPath("$.createdAt").isNotEmpty());
     }
 
     @Test
     void rejectsNegativePriceWithoutSaving() throws Exception {
-        Long countBefore = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM products",
-                Long.class
-        );
+        Long countBefore = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM products", Long.class);
 
-        mockMvc.perform(post("/api/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        post("/api/products")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                             {
                                 "name": "Invalid product",
                                 "price": -100
@@ -89,10 +86,7 @@ class ProductApiIntegrationTest {
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").isNotEmpty());
 
-        Long countAfter = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM products",
-                Long.class
-        );
+        Long countAfter = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM products", Long.class);
 
         assertEquals(countBefore, countAfter);
     }
@@ -110,28 +104,33 @@ class ProductApiIntegrationTest {
     @Test
     void updatesProductAndPersistsChanges() throws Exception {
         // 1. Tạo sản phẩm ban đầu.
-        String createdBody = mockMvc.perform(post("/api/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        String createdBody =
+                mockMvc.perform(
+                                post("/api/products")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(
+                                                """
                             {
                                 "name": "Original product",
                                 "description": "Original description",
                                 "price": 100000
                             }
                             """))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
         var created = objectMapper.readTree(createdBody);
         String id = created.get("id").asString();
         String createdAt = created.get("createdAt").asString();
 
         // 2. Cập nhật sản phẩm.
-        mockMvc.perform(put("/api/products/{id}", id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        put("/api/products/{id}", id)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                             {
                                 "name": "Updated product",
                                 "description": "Updated description",
@@ -149,41 +148,46 @@ class ProductApiIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.name").value("Updated product"))
-                .andExpect(jsonPath("$.description")
-                        .value("Updated description"))
+                .andExpect(jsonPath("$.description").value("Updated description"))
                 .andExpect(jsonPath("$.price").value(300000.0))
                 .andExpect(jsonPath("$.createdAt").value(createdAt));
     }
 
     @Test
     void rejectsInvalidUpdateWithoutChangingProduct() throws Exception {
-        String createdBody = mockMvc.perform(post("/api/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        String createdBody =
+                mockMvc.perform(
+                                post("/api/products")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(
+                                                """
                             {
                                 "name": "Original product",
                                 "description": "Original description",
                                 "price": 100000
                             }
                             """))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
         var created = objectMapper.readTree(createdBody);
         String id = created.get("id").asText();
 
         // Lấy dữ liệu trước khi cập nhật để so sánh sau đó.
-        String beforeBody = mockMvc.perform(get("/api/products/{id}", id))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String beforeBody =
+                mockMvc.perform(get("/api/products/{id}", id))
+                        .andExpect(status().isOk())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
-        mockMvc.perform(put("/api/products/{id}", id)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        put("/api/products/{id}", id)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                             {
                                 "name": "Changed name",
                                 "description": "Changed description",
@@ -193,30 +197,27 @@ class ProductApiIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400));
 
-        String afterBody = mockMvc.perform(get("/api/products/{id}", id))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String afterBody =
+                mockMvc.perform(get("/api/products/{id}", id))
+                        .andExpect(status().isOk())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
-        assertEquals(
-                objectMapper.readTree(beforeBody),
-                objectMapper.readTree(afterBody)
-        );
+        assertEquals(objectMapper.readTree(beforeBody), objectMapper.readTree(afterBody));
     }
 
     @Test
     void returnsNotFoundWithoutCreatingProductOnUpdate() throws Exception {
         UUID missingId = UUID.randomUUID();
 
-        Long countBefore = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM products",
-                Long.class
-        );
+        Long countBefore = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM products", Long.class);
 
-        mockMvc.perform(put("/api/products/{id}", missingId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        mockMvc.perform(
+                        put("/api/products/{id}", missingId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
                             {
                                 "name": "Missing product",
                                 "description": "Should not be created",
@@ -226,36 +227,34 @@ class ProductApiIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
 
-        Long countAfter = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM products",
-                Long.class
-        );
+        Long countAfter = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM products", Long.class);
 
         assertEquals(countBefore, countAfter);
 
-        mockMvc.perform(get("/api/products/{id}", missingId))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/products/{id}", missingId)).andExpect(status().isNotFound());
     }
 
     @Test
     void deletesProductAndCannotReadItAgain() throws Exception {
         // 1. Tạo sản phẩm.
-        String createdBody = mockMvc.perform(post("/api/products")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
+        String createdBody =
+                mockMvc.perform(
+                                post("/api/products")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(
+                                                """
                             {
                                 "name": "Product to delete",
                                 "description": "Delete integration test",
                                 "price": 50000
                             }
                             """))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
-        String id = objectMapper.readTree(createdBody)
-                .get("id").asString();
+        String id = objectMapper.readTree(createdBody).get("id").asString();
 
         // 2. Xác nhận sản phẩm tồn tại.
         mockMvc.perform(get("/api/products/{id}", id))
@@ -268,15 +267,14 @@ class ProductApiIntegrationTest {
                 .andExpect(content().string(""));
 
         // 4. Xác nhận không còn đọc được sản phẩm.
-        mockMvc.perform(get("/api/products/{id}", id))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/products/{id}", id)).andExpect(status().isNotFound());
 
         // 5. Kiểm tra trực tiếp database.
-        Long count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM products WHERE id = ?",
-                Long.class,
-                UUID.fromString(id)
-        );
+        Long count =
+                jdbcTemplate.queryForObject(
+                        "SELECT COUNT(*) FROM products WHERE id = ?",
+                        Long.class,
+                        UUID.fromString(id));
 
         assertEquals(0L, count.longValue());
     }

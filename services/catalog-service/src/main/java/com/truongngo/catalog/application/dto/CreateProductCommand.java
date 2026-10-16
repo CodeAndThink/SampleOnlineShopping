@@ -2,9 +2,4 @@ package com.truongngo.catalog.application.dto;
 
 import java.math.BigDecimal;
 
-public record CreateProductCommand (
-        String name,
-        String description,
-        BigDecimal price
-) {
-}
+public record CreateProductCommand(String name, String description, BigDecimal price) {}
