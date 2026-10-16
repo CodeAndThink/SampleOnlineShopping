@@ -1,10 +1,12 @@
 package com.truongngo.catalog.infrastructure.persistence;
 
+import com.truongngo.catalog.domain.model.PageResult;
 import com.truongngo.catalog.domain.model.Product;
 import com.truongngo.catalog.domain.repository.ProductRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,19 +19,30 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
     }
 
     @Override
-    public List<Product> findAll() {
-        return jpaRepository.findAll().stream().map(this::toDomain).toList();
+    public PageResult<Product> findPage(int page, int size) {
+        Sort sort = Sort.by(Sort.Order.desc("createdAt"), Sort.Order.asc("id"));
+
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        var result = jpaRepository.findAll(pageRequest);
+
+        return new PageResult<>(
+                result.getContent().stream().map(this::toDomain).toList(),
+                result.getNumber(),
+                result.getSize(),
+                result.getTotalElements(),
+                result.getTotalPages());
     }
 
     @Override
     public Product save(Product product) {
-        ProductJpaEntity entity = new ProductJpaEntity(
-                product.id(),
-                product.name(),
-                product.description(),
-                product.price(),
-                product.createdAt()
-        );
+        ProductJpaEntity entity =
+                new ProductJpaEntity(
+                        product.id(),
+                        product.name(),
+                        product.description(),
+                        product.price(),
+                        product.createdAt());
 
         ProductJpaEntity savedEntity = jpaRepository.save(entity);
 
@@ -52,7 +65,6 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
                 entity.getName(),
                 entity.getDescription(),
                 entity.getPrice(),
-                entity.getCreatedAt()
-        );
+                entity.getCreatedAt());
     }
 }

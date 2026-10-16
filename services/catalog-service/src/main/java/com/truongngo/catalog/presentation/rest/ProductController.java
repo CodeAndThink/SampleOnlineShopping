@@ -4,19 +4,18 @@ import com.truongngo.catalog.application.dto.CreateProductCommand;
 import com.truongngo.catalog.application.dto.UpdateProductCommand;
 import com.truongngo.catalog.application.usecase.*;
 import com.truongngo.catalog.domain.model.Product;
-import com.truongngo.catalog.domain.repository.ProductRepository;
 import com.truongngo.catalog.presentation.rest.dto.CreateProductRequest;
+import com.truongngo.catalog.presentation.rest.dto.PageResponse;
 import com.truongngo.catalog.presentation.rest.dto.ProductResponse;
 import com.truongngo.catalog.presentation.rest.dto.UpdateProductRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/products") //đặt đường dẫn chung của controller
+@RequestMapping("/api/products") // đặt đường dẫn chung của controller
 public class ProductController {
 
     private final GetProductsUseCase getProductsUseCase;
@@ -30,8 +29,7 @@ public class ProductController {
             CreateProductUseCase createProductUseCase,
             GetProductByIdUseCase getProductByIdUseCase,
             UpdateProductUseCase updateProductUseCase,
-            DeleteProductUseCase deleteProductUseCase
-    ) {
+            DeleteProductUseCase deleteProductUseCase) {
         this.getProductsUseCase = getProductsUseCase;
         this.createProductUseCase = createProductUseCase;
         this.getProductByIdUseCase = getProductByIdUseCase;
@@ -39,16 +37,25 @@ public class ProductController {
         this.deleteProductUseCase = deleteProductUseCase;
     }
 
-    @GetMapping //Nhận request http get
-    public List<ProductResponse> getProducts() {
-        return getProductsUseCase.execute().stream().map(ProductResponse::from).toList();
+    @GetMapping // Nhận request http get
+    public PageResponse<Product> getProducts(
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+        var result = getProductsUseCase.execute(page, size);
+
+        return new PageResponse<>(
+                result.items(),
+                result.page(),
+                result.size(),
+                result.totalElements(),
+                result.totalPages());
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(@RequestBody CreateProductRequest request) {
-        CreateProductCommand command = new CreateProductCommand(
-                request.name(), request.description(), request.price()
-        );
+    public ResponseEntity<ProductResponse> createProduct(
+            @RequestBody CreateProductRequest request) {
+        CreateProductCommand command =
+                new CreateProductCommand(request.name(), request.description(), request.price());
 
         Product product = createProductUseCase.save(command);
 
@@ -61,10 +68,10 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ProductResponse updateProduct(@PathVariable UUID id, @RequestBody UpdateProductRequest request) {
-        UpdateProductCommand command = new UpdateProductCommand(
-                request.name(), request.description(), request.price()
-        );
+    public ProductResponse updateProduct(
+            @PathVariable UUID id, @RequestBody UpdateProductRequest request) {
+        UpdateProductCommand command =
+                new UpdateProductCommand(request.name(), request.description(), request.price());
 
         Product updated = updateProductUseCase.execute(id, command);
 
