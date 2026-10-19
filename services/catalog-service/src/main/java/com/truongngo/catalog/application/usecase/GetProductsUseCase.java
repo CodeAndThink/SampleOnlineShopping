@@ -11,15 +11,21 @@ public class GetProductsUseCase {
         this.productRepository = productRepository;
     }
 
-    public PageResult<Product> execute(int page, int size) {
+    public PageResult<Product> execute(String keyword, int page, int size) {
         if (page < 0) {
-            throw new IllegalArgumentException("Page must be greater than zero");
+            throw new IllegalArgumentException("Page must be greater than or equal to zero");
         }
 
         if (size < 1 || size > 100) {
             throw new IllegalArgumentException("Size must be between 1 and 100");
         }
 
-        return productRepository.findPage(page, size);
+        String normalizeKeyword = keyword == null ? "" : keyword.strip();
+
+        if (normalizeKeyword.isEmpty()) {
+            return productRepository.findPage(page, size);
+        }
+
+        return productRepository.searchByName(normalizeKeyword, page, size);
     }
 }

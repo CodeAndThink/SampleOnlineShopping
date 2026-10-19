@@ -21,6 +21,9 @@ dependencies {
         platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
     )
 
+    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server") //nhận Bearer token, xác minh JWT và áp dụng quyền truy cập API.
+    testImplementation("org.springframework.security:spring-security-test") //hỗ trợ giả lập người dùng và JWT trong các test MockMvc.
+
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

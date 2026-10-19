@@ -11,3 +11,12 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+
+  security:
+    oauth2:
+      resource server:
+        jwt:
+          issuer-uri: https://securetoken.google.com/${FIREBASE_PROJECT_ID}
+          jwk-set-uri: https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com
+          audiences:
+            - ${FIREBASE_PROJECT_ID}

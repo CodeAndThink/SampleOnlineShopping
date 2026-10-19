@@ -14,4 +14,6 @@ public interface ProductRepository {
     Optional<Product> findById(UUID id);
 
     void deleteById(UUID id);
+
+    PageResult<Product> searchByName(String keyword, int page, int size);
 }

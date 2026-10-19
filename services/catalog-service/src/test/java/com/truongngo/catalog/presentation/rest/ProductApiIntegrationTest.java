@@ -24,22 +24,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @AutoConfigureMockMvc
 @Import(TestDatabaseConfig.class)
 class ProductApiIntegrationTest {
-    @Autowired private MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @Autowired private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @Autowired private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     void createsProductAndReadsItById() throws Exception {
         String requestBody =
                 """
-                {
-                    "name": "Wireless mouse",
-                    "description": "Bluetooth connection",
-                    "price": 250000.00
-                }
-                """;
+                        {
+                            "name": "Wireless mouse",
+                            "description": "Bluetooth connection",
+                            "price": 250000.00
+                        }
+                        """;
 
         // Gửi POST qua controller thật và lưu vào PostgreSQL.
         String responseBody =
@@ -77,11 +80,11 @@ class ProductApiIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
                                         """
-                            {
-                                "name": "Invalid product",
-                                "price": -100
-                            }
-                            """))
+                                                {
+                                                    "name": "Invalid product",
+                                                    "price": -100
+                                                }
+                                                """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.detail").isNotEmpty());
@@ -110,12 +113,12 @@ class ProductApiIntegrationTest {
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .content(
                                                 """
-                            {
-                                "name": "Original product",
-                                "description": "Original description",
-                                "price": 100000
-                            }
-                            """))
+                                                        {
+                                                            "name": "Original product",
+                                                            "description": "Original description",
+                                                            "price": 100000
+                                                        }
+                                                        """))
                         .andExpect(status().isCreated())
                         .andReturn()
                         .getResponse()
@@ -131,12 +134,12 @@ class ProductApiIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
                                         """
-                            {
-                                "name": "Updated product",
-                                "description": "Updated description",
-                                "price": 300000
-                            }
-                            """))
+                                                {
+                                                    "name": "Updated product",
+                                                    "description": "Updated description",
+                                                    "price": 300000
+                                                }
+                                                """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.name").value("Updated product"))
@@ -161,19 +164,19 @@ class ProductApiIntegrationTest {
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .content(
                                                 """
-                            {
-                                "name": "Original product",
-                                "description": "Original description",
-                                "price": 100000
-                            }
-                            """))
+                                                        {
+                                                            "name": "Original product",
+                                                            "description": "Original description",
+                                                            "price": 100000
+                                                        }
+                                                        """))
                         .andExpect(status().isCreated())
                         .andReturn()
                         .getResponse()
                         .getContentAsString();
 
         var created = objectMapper.readTree(createdBody);
-        String id = created.get("id").asText();
+        String id = created.get("id").asString();
 
         // Lấy dữ liệu trước khi cập nhật để so sánh sau đó.
         String beforeBody =
@@ -188,12 +191,12 @@ class ProductApiIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
                                         """
-                            {
-                                "name": "Changed name",
-                                "description": "Changed description",
-                                "price": -1
-                            }
-                            """))
+                                                {
+                                                    "name": "Changed name",
+                                                    "description": "Changed description",
+                                                    "price": -1
+                                                }
+                                                """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400));
 
@@ -218,12 +221,12 @@ class ProductApiIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
                                         """
-                            {
-                                "name": "Missing product",
-                                "description": "Should not be created",
-                                "price": 250000
-                            }
-                            """))
+                                                {
+                                                    "name": "Missing product",
+                                                    "description": "Should not be created",
+                                                    "price": 250000
+                                                }
+                                                """))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
 
@@ -243,12 +246,12 @@ class ProductApiIntegrationTest {
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .content(
                                                 """
-                            {
-                                "name": "Product to delete",
-                                "description": "Delete integration test",
-                                "price": 50000
-                            }
-                            """))
+                                                        {
+                                                            "name": "Product to delete",
+                                                            "description": "Delete integration test",
+                                                            "price": 50000
+                                                        }
+                                                        """))
                         .andExpect(status().isCreated())
                         .andReturn()
                         .getResponse()
@@ -276,6 +279,7 @@ class ProductApiIntegrationTest {
                         Long.class,
                         UUID.fromString(id));
 
+        assert count != null;
         assertEquals(0L, count.longValue());
     }
 }

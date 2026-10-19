@@ -39,9 +39,10 @@ public class ProductController {
 
     @GetMapping // Nhận request http get
     public PageResponse<Product> getProducts(
+            @RequestParam(name = "keyword", defaultValue = "") String keyword,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
-        var result = getProductsUseCase.execute(page, size);
+        var result = getProductsUseCase.execute(keyword, page, size);
 
         return new PageResponse<>(
                 result.items(),

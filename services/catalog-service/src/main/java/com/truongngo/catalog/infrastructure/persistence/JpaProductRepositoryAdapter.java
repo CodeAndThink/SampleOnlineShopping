@@ -59,6 +59,19 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
         jpaRepository.deleteById(id);
     }
 
+    @Override
+    public PageResult<Product> searchByName(String keyword, int page, int size) {
+        Sort sort = Sort.by(Sort.Order.desc("createdAt"), Sort.Order.asc("id"));
+
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        var result = jpaRepository.findByNameContainingIgnoreCase(keyword, pageRequest);
+
+        return new PageResult<>(
+          result.getContent().stream().map(this::toDomain).toList(), result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages()
+        );
+    }
+
     private Product toDomain(ProductJpaEntity entity) {
         return new Product(
                 entity.getId(),
