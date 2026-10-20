@@ -14,6 +14,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -41,7 +43,13 @@ class ProductSecurityIntegrationTest {
                             "price": 250000
                         }
                         """)
-        ).andExpect(status().isUnauthorized());
+        ).andExpect(status().isUnauthorized())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(header().string("WWW-Authenticate", "Bearer"))
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.detail")
+                        .value("You are not authorized to access this resource."))
+                .andExpect(jsonPath("$.instance").value("/api/products"));
     }
 
     @Test
@@ -64,7 +72,12 @@ class ProductSecurityIntegrationTest {
                                     "price": 250000
                                 }
                                 """))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.detail")
+                        .value("You don't have permission to access this resource."))
+                .andExpect(jsonPath("$.instance").value("/api/products"));
     }
 
     @Test
