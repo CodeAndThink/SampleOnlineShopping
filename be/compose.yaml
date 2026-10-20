@@ -1,3 +1,5 @@
+name: sampleonlineshopping
+
 services:
   catalog-db:
     image: postgres:17

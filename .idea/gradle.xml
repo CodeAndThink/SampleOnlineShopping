@@ -4,18 +4,18 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/services/auth-service" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/be/services/auth-service" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/services/auth-service" />
+            <option value="$PROJECT_DIR$/be/services/auth-service" />
           </set>
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/services/catalog-service" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/be/services/catalog-service" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/services/catalog-service" />
+            <option value="$PROJECT_DIR$/be/services/catalog-service" />
           </set>
         </option>
         <option name="myGradleHome" value="" />
